@@ -1,0 +1,52 @@
+using System;
+using System.Threading;
+using System.Diagnostics;
+using System.Linq;
+
+namespace Monitor
+{
+    class ProcessKiller
+    {
+        protected string ProcessName { get; set; }
+        protected int LifeTime { get; set; }
+        protected int Interval { get; set; }
+        public ProcessKiller(string name, int lifeTime, int interval)
+        {
+            ProcessName = name;
+            LifeTime = lifeTime;
+            Interval = interval;
+        }
+
+        public void SearchAndStop()
+        {
+            Process.GetProcessesByName(ProcessName);
+            int waitingTime = Interval * 1000 * 60;
+            int currentTime = LifeTime;
+            for (int i = Interval - 1; i < LifeTime; i++)
+            {
+                if (Process.GetProcessesByName(ProcessName).Any())
+                {
+                    Console.WriteLine($"Процесс: {ProcessName}, будет остановлен через {currentTime} минуты.");
+
+                    if (currentTime < Interval)
+                    { 
+                        waitingTime = currentTime * 1000 * 60;
+                        Thread.Sleep(waitingTime);
+                        break;
+                    }
+                    currentTime -= Interval;
+
+                    Thread.Sleep(waitingTime);
+                }
+                else
+                {
+                    Console.WriteLine("Процесс был остановлен досрочно.");
+                    break;
+                }
+            }
+
+            foreach (var process in Process.GetProcessesByName(ProcessName))
+                process.Kill();
+        }
+    }
+}
