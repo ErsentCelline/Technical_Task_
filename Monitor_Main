@@ -1,0 +1,45 @@
+using System;
+using System.Diagnostics;
+using System.Linq;
+
+
+namespace Monitor
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            string ProcessName = args[0];
+            if (Process.GetProcessesByName(ProcessName).Any())
+            {
+                if (args.Length == 3)
+                {
+                    int ProcessLifeTime = int.Parse(args[1]);
+                    int Interval = int.Parse(args[2]);
+
+                    if (ProcessLifeTime > 0 && Interval > 0 && ProcessLifeTime >= Interval)
+                    {
+                        ProcessKiller killer = new ProcessKiller(args[0], int.Parse(args[1]), int.Parse(args[2]));
+                        killer.SearchAndStop();
+                        Console.WriteLine($"Программа завершила свою работу. Процесс {args[0]} был остановлен. Ожидание ввода.");
+                    }
+                    else if (ProcessLifeTime <= 0 || Interval <= 0)
+                        Console.WriteLine("Некорректное значение.");
+                    else if (ProcessLifeTime < Interval)
+                        Console.WriteLine("Частота проверки не может быть выше, чем допустимое время работы процесса.");
+                }
+                else if (args.Length < 3)
+                {
+                    Console.WriteLine("Введено недостаточное количество параметров. Необходимо - 3.");
+                }
+                else
+                    Console.WriteLine("Введено слишком много параметров.");
+            }
+            else
+                Console.WriteLine("Процесс не найден.");
+
+            Console.WriteLine("Ожидание ввода.");
+            Console.ReadLine();
+        }
+    }
+}
